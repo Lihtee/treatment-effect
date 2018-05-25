@@ -1,3 +1,4 @@
+<?php include $_SERVER['DOCUMENT_ROOT']."/Common/common.php"; ?>
 <!DOCTYPE html>
 <!--
 To change this license header, choose License Headers in Project Properties.
@@ -16,9 +17,6 @@ and open the template in the editor.
             <button type="submit" name="submit" value="submit"> Войти </button>
         </form>
         <?php
-            ini_set("display_errors",1);
-            error_reporting(E_ALL);
-            session_start();
             if (isset($_GET['submit']) ){
                 if (isset($_GET['email']) && $_GET['email'] != ""){
                     $_SESSION['userEmail'] = $_GET['email'];
@@ -30,12 +28,3 @@ and open the template in the editor.
         ?>
     </body>
 </html>
-<?php
-//            if (isset($_GET('submit')) ){
-//                $_SESSION['userEmail'] = $_GET['email'];
-//                echo $_GET['email'];
-//                header("Location:../web/main.php");
-//            } else {
-//                echo "<p>Поле пустое!</p>";
-//            }
-//        

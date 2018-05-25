@@ -1,5 +1,13 @@
+<?php include $_SERVER['DOCUMENT_ROOT'].'/Common/common.php'; ?>
 <?php
-
+    require_once $_SERVER['DOCUMENT_ROOT'].'/Classes/DataModel/Operator.php';
+    require_once $_SERVER['DOCUMENT_ROOT'].'/Classes/DataModel/AnalysisResult.php';
+    require_once $_SERVER['DOCUMENT_ROOT'].'/Classes/DataModel/VariableDescription.php';
+    require_once $_SERVER['DOCUMENT_ROOT'].'/Classes/DataModel/State.php';
+    
+?>
+<?php
+  
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -14,7 +22,7 @@
 class AnalisysHandler {
     public function Analyse($file, $dataSet){
         //В скрипт в качестве имен столбцов передавать их id.
-        $res = $this->Analyse($file, $dataSet);
+        $res = $this->GenerateResult($dataSet);
         return $res;
     }
     
@@ -37,11 +45,18 @@ class AnalisysHandler {
         
         $variableDescription = new Variable_description();
         $variableDescription ->operator = $op1;
-        $variableDescription ->variable = $dataSet->dataColumns[0];
+        foreach ($dataSet->dataColumns as $dataColumn){
+            $variableDescription ->variable = $dataColumn;
+            echo "<p>Переменная на этапе анализа добавлена </p>";
+            break;
+        }
         $variableDescription->value = 30;
         
         $result->AddVariableDescription($variableDescription);
-        
+        $state = new State();
+        $state->id = 2;
+        $dataSet->state = $state;
+        $dataSet->result = $result;
         return $dataSet;
     }
 }

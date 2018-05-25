@@ -1,6 +1,6 @@
+<?php include $_SERVER['DOCUMENT_ROOT'].'/Common/common.php'; ?>
 <?php
-            ini_set("display_errors",1);
-            error_reporting(E_ALL);
+             
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -29,36 +29,41 @@ class DBHandler {
                 $this->dbPassword, $this->dbName);
         
         //Выбрать из бд id компании текущего email
-        $sql = "SELECT company.id FROM company INNER JOIN email ON company.id = email.idCompany WHERE email.email = ".$email." ;";
+        $sql = "SELECT company.id FROM company INNER JOIN email ON company.id = email.id_company WHERE email.email = '".$email."' ;";
         $res = mysqli_query($conn, $sql);
         $companyId = mysqli_fetch_row($res)[0];
-        
+        echo "<p> Email: ". $email."</p>";
+        echo "<p> Айди компании: ".$companyId."</p>";
         //Добавить в базу сущность набор_данных и взять оттуда его id.
-        $sql = "INSERT INTO data_set (description, id_company) VALUES ('".$dataSet->description."','".$companyId."')";
+        $sql = "INSERT INTO data_set (name, description, id_company, id_state_analysis) VALUES ('".$dataSet->description."','".$dataSet->description."','".$companyId."', '".$dataSet->state->id."')";
          mysqli_query($conn, $sql);
         $dataSetId = mysqli_insert_id($conn);
         $dataSet->id = $dataSetId;
-        
+        echo "<p> Айди набора данных: ".$dataSet->id."</p>";
         //Добавить в базу сущности столбец_данных.
-        $sql = "";
-        //spi
+        $res = 1;
         
         foreach ($dataSet->dataColumns as $dataColumn){
-            $sql = $sql."INSERT INTO data_column (id_data_set, id_subtype, name) VALUES ('".$dataSetId."','".$dataColumn->id_subtype."','".$dataColumn->name."');";
+            $sql = "INSERT INTO data_column (id_data_set, id_subtype, name) VALUES ('".$dataSetId."','".$dataColumn->subtype->id."','".$dataColumn->name."');";
+            $res = $res & mysqli_query($conn, $sql);
+            $dataColumnId = mysqli_insert_id($conn);
+            $dataColumn->id = $dataColumnId;
         }
-        mysqli_query($conn, $sql);
+        
+        echo "<p> Добавлены ли столбцы: ".$res."</p>";
         //Добавить в базу сущность результат_анализа и взять его id.
-        $sql = "INSETR INTO analysis_result (ate, tte, id_data_set) VALUES ('".$dataSet->result->ATE."', '".$dataSet->result->TTE."','".$dataSet->id."');";
-        mysqli_query($conn, $sql);
+        $sql = "INSERT INTO analysis_result (ate, tte, id_data_set) VALUES ('".$dataSet->result->ATE."', '".$dataSet->result->TTE."','".$dataSet->id."');";
+        $res = mysqli_query($conn, $sql);
         $analysisResultId = mysqli_insert_id($conn);
+        $dataSet->result->id = $analysisResultId;
+        echo "<p> Айди результата: ".$analysisResultId."</p>"; 
         //Добавить в базу сущности описание_переменной.
         $sql = "";
         foreach ($dataSet->result->variableDescriptions as $variableDescription){
-            $sql = $sql."INSERT INTO variable_description (id_result, id_variable, id_operator, value) "
-                    . "VALUES ('".$variableDescription->analysisResultId."','".$variable_description->variable->id."','".$variableDescription->operator.id."','".$variableDescription->value."');";
+            $sql = $sql."INSERT INTO variable_description (id_result, id_variable, id_operator, value) VALUES ('".$variableDescription->result->id."','".$variableDescription->variable->id."','".$variableDescription->operator->id."','".$variableDescription->value."');";
         }
-        mysqli_query($conn, $sql);
-        
+        $res = mysqli_query($conn, $sql);
+        echo "<p> Добавлены ли описания переменных: ".$res."</p>";
         //Все сохранено в БД
         //Выбор id последнего добавленного объекта.
         $lastId = mysqli_insert_id($conn);
@@ -97,24 +102,58 @@ class DBHandler {
         }
         return $resArr;
     }
-    public function GetDataTypes(){
-        
+    public function GetResults($email){
+         $conn = mysqli_connect($this->dbServername, $this->dbUsername, 
+                $this->dbPassword, $this->dbName);
+         $sql = "SELECT data_set.id, data_set.name,state_analysis.name,state_analysis.id FROM data_set INNER JOIN state_analysis ON data_set.id_state_analysis = state_analysis.id";
+         $res = mysqli_query($conn, $sql);
+         $nrows = mysqli_num_rows($res);
+         if ($nrows == 0){
+             return null;
+         }else {
+             $resultsArr = array();
+             for ($i=0; $i<$nrows; $i++){
+                 $row = mysqli_fetch_row($res);
+                 $resultsArr[$i]['data_set_id'] = $row[0];
+                 $resultsArr[$i]['data_set_name'] = $row[1];
+                 $resultsArr[$i]['state_analysis_name'] = $row[2];
+                 $resultsArr[$i]['state_analysis_id']=$row[3];
+             }
+             return $resultsArr;
+         }
+    }
+    public function GetSpecificResult($dataSetId){
+        $conn = mysqli_connect($this->dbServername, $this->dbUsername, 
+                $this->dbPassword, $this->dbName);
+        $sql = "select analysis_result.ate, analysis_result.tte, variable_description.value, data_column.name, operator.value "
+             . " from (((data_set inner join analysis_result on data_set.id = analysis_result.id_data_set) inner join variable_description on analysis_result.id = variable_description.id_result ) inner join operator on variable_description.id_operator = operator.id) INNER join data_column on variable_description.id_variable = data_column.id "
+             . " where data_set.id = ".$dataSetId." ";
+        $res = mysqli_query($conn, $sql);
+        $nrows = mysqli_num_rows($res);
+        if ($nrows == 0){
+            echo "<p> Null res</p>";
+            return null;
+        }else {
+            $rows = array();
+            for ($i = 0; $i<$nrows; $i++){
+                $rows[$i] = mysqli_fetch_row($res);
+            }
+            
+            $resultArr = array();
+            $resultArr['ate'] = $rows[0][0];
+            $resultArr['tte'] = $rows[0][1];
+            $resultArr['vars'] = array();
+            for ($i =0; $i<$nrows; $i++){
+                $resultArr['vars'][$i]['var_name'] = $rows[$i][3];
+                $resultArr['vars'][$i]['operator'] = $rows[$i][4];
+                $resultArr['vars'][$i]['var_value'] = $rows[$i][2];
+            }
+        }
+        return $resultArr;
     }
     public function Login($email){
         
     }
-    function GenerateDataSetCREATE(){
-        
-    }
     
-    function GenerateDataSetINSERT(){
-        
-    }
     
-    public function SaveResult(){
-        
-    }
-    function GenerateResultINSERT(){
-        
-    }
 }

@@ -1,3 +1,10 @@
+<?php include $_SERVER['DOCUMENT_ROOT']."/Common/common.php"; ?>
+<?php
+    require_once $_SERVER['DOCUMENT_ROOT'].'/Classes/DBHandler.php';
+    require_once $_SERVER['DOCUMENT_ROOT'].'/Classes/AnalisysHandler.php';
+    require_once $_SERVER['DOCUMENT_ROOT'].'/Classes/DataModel/DataSet.php';
+    require_once $_SERVER['DOCUMENT_ROOT'].'/Classes/DataModel/DataColumn.php';
+?>
 <!DOCTYPE html>
 <!--
 To change this license header, choose License Headers in Project Properties.
@@ -21,11 +28,9 @@ and open the template in the editor.
             </p>
             <div id= "sections">
                 <?php
-                    ini_set("display_errors",1);
-                    error_reporting(E_ALL);
-                    require_once '..\Classes\DBHandler.php';
                     $dbHandler = new DBHandler();
                     $lists = $dbHandler->GetCatalogs();
+                    $colSubtypes = array();
                     for ($i=0; $i<10; $i++){
                     echo "<div id='col".$i."' style='display:none'>"
                             ."<p> Столбец ".$i." </p>" 
@@ -35,6 +40,7 @@ and open the template in the editor.
                     foreach($lists as $type){
                         foreach ($type->subtypes as $subtype){
                             echo "<option value = '".$subtype->id."'>".$type->name."-".$subtype->name." </option>";
+                            $colSubtypes[$subtype->id] = $subtype;
                         }
                     }
                     echo "</select>";
@@ -42,53 +48,41 @@ and open the template in the editor.
                     }
                 ?>
             </div>
-            <button type="submit" name="send"> Отправить данные на анализ</button>
+            <button type="submit" name="send" > Отправить данные на анализ</button>
         </form>
          <?php
             
-            if (isset($_GET['submit'])){
+            if (isset($_GET['send'])){
                 
                 $numCol = $_GET['numCol'];
                 $colNames = array();
-                $colSubtypes = array();
+                $colSubtypesId = array();
+                
                 for ($i =0; $i<$numCol; $i++){
                     $colNames[$i] = $_GET['colName'.$i];  
-                    $colSubtypes[$i] = $_GET['subtype'.$i];
+                    $colSubtypesId[$i] = $_GET['subtype'.$i];
                 }
                 
                 //Save data set in db;
                 if (isset($_GET['allowStorage'])){
-                    
-                }
-                
-                $colTypes = array();
-                foreach ($colSubtypes as $subtypeId){
-                    $i = 0;
-                    foreach ($lists as $type){
-                        foreach ($type->subtypes as $subtype){
-                            if ($subtypeId == $subtype->id){
-                                $colTypes[$i] = $type;
-                            }
-                        }
-                    }
-                    $i ++;
                 }
                 
                 $dataSet = new DataSet();
-                $dataSet->name = $_GET['file'];
+                $dataSet->description = $_GET['file'];
                 for ($i =0; $i < $numCol; $i++){
                     $dataColumn = new DataColumn();
                     $dataColumn->name = $colNames[$i];
-                    $dataColumn->subtype = $colSubtypes[$i];
+                    $dataColumn->subtype = $colSubtypes[$colSubtypesId[$i]];
                     $dataSet->AddDataColumn($dataColumn);
                 }
                 
                 $analysisHandler = new AnalisysHandler();
-                $res = $analysisHandler->Analyse($file, $colTypes, $colNames);
+                $res = $analysisHandler->Analyse($_GET['file'], $dataSet);
                 
-               
-                
+                $dbHandler->SaveDataSetResult($dataSet, $_SESSION['userEmail']);
+                header("Location:../web/results.php");
             }
+            
          ?>
     </body>
 </html>

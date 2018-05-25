@@ -16,7 +16,7 @@ class DataColumn {
     public $id;
     public $name;
     //External fields
-    public $DataSet;
+    public $dataSet;
     public $subtype;
     public $dataType;
 }
