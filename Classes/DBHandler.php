@@ -20,9 +20,7 @@ class DBHandler {
     
  
     
-    function __construct() {
-     
-    }
+    
 
     public function SaveDataSetResult($dataSet, $email){
         $conn = mysqli_connect($this->dbServername, $this->dbUsername, 
@@ -152,7 +150,20 @@ class DBHandler {
         return $resultArr;
     }
     public function Login($email){
-        
+        $conn = mysqli_connect($this->dbServername, $this->dbUsername, 
+                $this->dbPassword, $this->dbName);
+        $sql = "select email.email, company.id "
+               ."from email inner join company on email.id_company=company.id "
+               . "where email.email = ".$email."";
+        $res = mysqli_query($conn, $sql);
+        $nrows = mysqli_num_rows($res);
+        if ($nrows == 0){
+            $sql = "insert into email (email, id_company) values ('".$email."', '1')";
+            $res = mysqli_query($conn, $sql);
+            return 0;
+        }else {
+            return 1;
+        }
     }
     
     

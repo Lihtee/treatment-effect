@@ -1,4 +1,5 @@
 <?php include $_SERVER['DOCUMENT_ROOT']."/Common/common.php"; ?>
+<?php require_once $_SERVER['DOCUMENT_ROOT'].'/Classes/DBHandler.php'; ?>
 <!DOCTYPE html>
 <!--
 To change this license header, choose License Headers in Project Properties.
@@ -20,6 +21,8 @@ and open the template in the editor.
             if (isset($_GET['submit']) ){
                 if (isset($_GET['email']) && $_GET['email'] != ""){
                     $_SESSION['userEmail'] = $_GET['email'];
+                    $dbHandler = new DBHandler();
+                    $dbHandler->Login($_GET['email']);
                     header("Location:../web/main.php");
                 }else {
                     echo "<p>Поле пустое!</p>";
