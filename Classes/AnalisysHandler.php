@@ -20,17 +20,24 @@
  * @author Дрей
  */
 class AnalisysHandler {
-    public function Analyse($file, $dataSet){
+    /**
+     * 
+     * @param type $file
+     * @param type $dsArray
+     * @return type
+     */
+        public function Analyse($file, $dsArray){
         //В скрипт в качестве имен столбцов передавать их id.
         $res = $this->GenerateResult($dataSet);
         return $res;
     }
     
+    
     function GenerateCmd(){
         
     }
     
-    function GenerateResult($dataSet){
+    function GenerateResult($dsArray){
         $op1 = new Operator();
         $op1->id = 1;
         $op1->value = ">";
@@ -57,6 +64,13 @@ class AnalisysHandler {
         $state->id = 2;
         $dataSet->state = $state;
         $dataSet->result = $result;
+        
+        $resArray = array(
+            'data_set' =>array(),
+            'result' =>array(),
+            'subgroup_best' =>array(),
+            'subgriup_worst' =>array()
+        );
         return $dataSet;
     }
 }

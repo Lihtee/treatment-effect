@@ -68,6 +68,10 @@ class DBHandler {
        
         return 1;
     }
+    /**
+     * 
+     * @return списки типов и подтипов столбца данных.
+     */
     public function GetCatalogs(){
         $conn = mysqli_connect($this->dbServername, $this->dbUsername,
                 $this->dbPassword, $this->dbName);
