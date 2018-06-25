@@ -17,7 +17,37 @@ class DBHandler {
     private $dbUsername = "root";
     private $dbPassword = "root";
     private $dbName = "maindb";
-    
+    private $conn;
+     
+    public function __construct() {
+        $conn = mysqli_connect($this->dbServername, $this->dbUsername, 
+                $this->dbPassword, $this->dbName);
+    }
+    /**
+     * 
+     * @return assocArray Ассоциативный массив следующего вида: 
+     * [[['data_set.name'],['analysis_result.id'],['state_analysis.id'],['state_analysis.name'] ], 
+     * [...], 
+     * [...]]
+     */
+    public function getShortAnalysisResults()
+    {
+        $sql = "SELECT data_set.name , analysis_result.id, state_analysis.id, state_analysis.name"
+               ."FROM (analysis_result INNER JOIN data_set ON analysis_result.id_data_set = data_set.id) "
+                . "INNER JOIN state_analysis ON data_set.id_state_analysis = state_analysis.id";
+        $SQLres = mysqli_query($conn, $sql);
+        $res = array();
+        $nrows = mysqli_num_rows($SQLres);
+        for ($i = 0; $i < $nrows; $i++){
+            $row = mysqli_fetch_row($result);
+            $res[$i]['data_set.name'] = $row[0];
+            $res[$i]['analysis_result.id'] = $row[1];
+            $res[$i]['state_analysis.id'] = $row[2];
+            $res[$i]['state_analysis.name'] = $row[3];
+        }
+        
+        return $res;
+    }
  
     
     
