@@ -13,15 +13,31 @@ and open the template in the editor.
     </head>
     <body>
         <?php
-            if (isset($_GET['dsId'])){
-                $dbHandler = new DBHandler();
-                $res = $dbHandler->GetSpecificResult($_GET['dsId']);
-                echo "<p>ATE:  ".$res['ate']."</p>";
-                echo "<p>TTE:  ".$res['tte']."</p>";
-                foreach ($res['vars'] as $var){
-                    echo "<p>".$var['var_name']." ".$var['operator']." ".$var['var_value']."  </p>";
-                }
-            }
+        //Версия для старой БД
+//            if (isset($_GET['dsId'])){
+//                $dbHandler = new DBHandler();
+//                $res = $dbHandler->GetSpecificResult($_GET['dsId']);
+//                echo "<p>ATE:  ".$res['ate']."</p>";
+//                echo "<p>TTE:  ".$res['tte']."</p>";
+//                foreach ($res['vars'] as $var){
+//                    echo "<p>".$var['var_name']." ".$var['operator']." ".$var['var_value']."  </p>";
+//                }
+//            }
+        
+        
         ?>
+        <?php 
+            //Версия-заглушка
+        ?>
+        <div>
+            <p>Лучшая подгруппа:</p>
+            <p>Х1 > 10</p>
+            <p>Х2 < 30</p>
+        </div>
+        <div>
+            <p>Худшая подгруппа:</p>
+            <p>Х1 < 5</p>
+            <p>Х2 > 46</p>
+        </div>
     </body>
 </html>

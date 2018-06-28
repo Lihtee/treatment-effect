@@ -25,10 +25,15 @@ and open the template in the editor.
                     foreach ($resultArray as $resRow){
                         echo "<tr>";
                             echo "<td>".$resRow['data_set.name']."</td>";
-                            echo "<td>".$resRow['state_analysis.name']."</td>";
-                            if ($resRow['state_analysis.id'] == 2){
+                            if ($resRow['state_analysis.id'] == '1' || $resRow['state_analysis.id'] == 1 ){
+                                echo "<td>В процессе</td>";
+                            }
+                            if ($resRow['state_analysis.id'] == '2' || $resRow['state_analysis.id'] == 2){
+                                echo "<td>Завершено</td>";
                                 echo "<td><a href='result.php?dsId=".$resRow['analysis_result.id']."'>Посмотреть результат</a></td>";
                             }
+                            
+                            
                     }
                 } else {
                     header("Location:../web/login.php");

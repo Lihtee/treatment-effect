@@ -32,17 +32,24 @@ class DBHandler {
      */
     public function getShortAnalysisResults($userEmail)
     {
-        $sql = "SELECT data_set.name , analysis_result.id, state_analysis.id, state_analysis.name 
-                fROM (((analysis_result INNER JOIN data_set ON analysis_result.id_data_set = data_set.id) 
-                	INNER JOIN state_analysis ON data_set.id_state_analysis = state_analysis.id) 
-                    inner join company on company.id = data_set.id_company) 
-                    INNER join email on email.id_company = company.id
-                where email.email = '".$userEmail."'";
+        //Конструктор не хочет это инициализировать.
+        $conn = mysqli_connect($this->dbServername, $this->dbUsername, 
+                $this->dbPassword, $this->dbName);
+        //Пока что не работает
+//        $sql = "SELECT data_set.name , analysis_result.id, state_analysis.id, state_analysis.name 
+//                fROM (((analysis_result INNER JOIN data_set ON analysis_result.id_data_set = data_set.id) 
+//                	INNER JOIN state_analysis ON data_set.id_state_analysis = state_analysis.id) 
+//                    inner join company on company.id = data_set.id_company) 
+//                    INNER join email on email.id_company = company.id
+//                where email.email = '".$userEmail."'";
+        $sql = "select data_set.name, analysis_result.id, state_analysis.id, state_analysis.name "
+                . "from (data_set inner join analysis_result on data_set.id = analysis_result.id_data_set) "
+                        . "inner join state_analysis on state_analysis.id = data_set.id_state_analysis";
         $SQLres = mysqli_query($conn, $sql);
         $res = array();
         $nrows = mysqli_num_rows($SQLres);
         for ($i = 0; $i < $nrows; $i++){
-            $row = mysqli_fetch_row($result);
+            $row = mysqli_fetch_row($SQLres);
             $res[$i]['data_set.name'] = $row[0];
             $res[$i]['analysis_result.id'] = $row[1];
             $res[$i]['state_analysis.id'] = $row[2];
@@ -52,7 +59,16 @@ class DBHandler {
         return $res;
     }
  
-    
+    public function DemoSave($dsName){
+        //Конструктор не хочет это инициализировать.
+        $conn = mysqli_connect($this->dbServername, $this->dbUsername, 
+                $this->dbPassword, $this->dbName);
+        $sql = "insert into data_set (name, id_state_analysis) values ('".$dsName."', '2')";
+        $SQLres = mysqli_query($conn, $sql);
+        $dataSetId = mysqli_insert_id($conn);
+        $sql = "insert into analysis_result(id_data_set) values ('".$dataSetId."')";
+        $SQLres = mysqli_query($conn, $sql);
+    }
     
 
     public function SaveDataSetResult($dataSet, $email){

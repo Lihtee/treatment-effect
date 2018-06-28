@@ -63,63 +63,66 @@ and open the template in the editor.
         </form>
         <?php
         if (isset($_GET['send'])) {
+            $dbHandler->DemoSave($_GET['file']);
+            if (false){
+                $numCol =
+                        $_GET['numCol'];
+                $colNames =
+                        array();
+                $colSubtypesId =
+                        array();
 
-            $numCol =
-                    $_GET['numCol'];
-            $colNames =
-                    array();
-            $colSubtypesId =
-                    array();
+                for ($i =
+                0;
+                        $i <
+                        $numCol;
+                        $i++) {
+                    $colNames[$i] =
+                            $_GET['colName' . $i];
+                    $colSubtypesId[$i] =
+                            $_GET['subtype' . $i];
+                }
 
-            for ($i =
-            0;
-                    $i <
-                    $numCol;
-                    $i++) {
-                $colNames[$i] =
-                        $_GET['colName' . $i];
-                $colSubtypesId[$i] =
-                        $_GET['subtype' . $i];
-            }
+                //Save data set in db;
+                if (isset($_GET['allowStorage'])) {
 
-            //Save data set in db;
-            if (isset($_GET['allowStorage'])) {
-                
-            }
-            //Создание ассоциативного массива для передачи
-            $dsArray =
-                    array(
-                'description' => $_GET['file']);
-            for ($i =
-            0;
-                    $i <
-                    $numCol;
-                    $i++) {
-                $dsArray['columns'][$i]['name'] =
-                        $colNames[$i];
-                $dsArray['columns'][$i]['subtype'] =
-                        $colSubtypes[$colSubtypesId[$i]];
-            }
-            //Старый метод создания стрктуры для передачи.
-//                $dataSet = new DataSet();
-//                $dataSet->description = $_GET['file'];
-//                for ($i =0; $i < $numCol; $i++){
-//                    $dataColumn = new DataColumn();
-//                    $dataColumn->name = $colNames[$i];
-//                    $dataColumn->subtype = $colSubtypes[$colSubtypesId[$i]];
-//                    $dataSet->AddDataColumn($dataColumn);
-//                }
+                }
+                //Создание ассоциативного массива для передачи
+                $dsArray =
+                        array(
+                    'description' => $_GET['file']);
+                for ($i =
+                0;
+                        $i <
+                        $numCol;
+                        $i++) {
+                    $dsArray['columns'][$i]['name'] =
+                            $colNames[$i];
+                    $dsArray['columns'][$i]['subtype'] =
+                            $colSubtypes[$colSubtypesId[$i]];
+                }
+                //Старый метод создания стрктуры для передачи.
+    //                $dataSet = new DataSet();
+    //                $dataSet->description = $_GET['file'];
+    //                for ($i =0; $i < $numCol; $i++){
+    //                    $dataColumn = new DataColumn();
+    //                    $dataColumn->name = $colNames[$i];
+    //                    $dataColumn->subtype = $colSubtypes[$colSubtypesId[$i]];
+    //                    $dataSet->AddDataColumn($dataColumn);
+    //                }
 
-            $analysisHandler =
-                    new AnalisysHandler();
-            //Отправляется описание набора данных + описания столбцов + файл.
-            $res =
-                    $analysisHandler->Analyse($_GET['file'],
-                    $dsArray);
+                $analysisHandler =
+                        new AnalisysHandler();
+                //Отправляется описание набора данных + описания столбцов + файл.
+                $res =
+                        $analysisHandler->Analyse($_GET['file'],
+                        $dsArray);
 
-            $dbHandler->SaveDataSetResult($res,
-                    $_SESSION['userEmail']);
-            header("Location:../web/results.php");
+                $dbHandler->SaveDataSetResult($res,
+                        $_SESSION['userEmail']);
+
+        } 
+        header("Location:../web/results.php");
         }
         ?>
     </body>
@@ -164,9 +167,9 @@ and open the template in the editor.
         }
     }
 
-    var headersControl = document.getElementById("useHeaders");
-    headersControl.control.addEventListener("change", useHeadersChanged);
-    function useHeadersChanged{
-        var a = new a();
-    }
+//    var headersControl = document.getElementById("useHeaders");
+//    headersControl.control.addEventListener("change", useHeadersChanged);
+////    function useHeadersChanged{
+////        var a = new a();
+////    }
 </script>
