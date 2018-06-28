@@ -30,11 +30,14 @@ class DBHandler {
      * [...], 
      * [...]]
      */
-    public function getShortAnalysisResults()
+    public function getShortAnalysisResults($userEmail)
     {
-        $sql = "SELECT data_set.name , analysis_result.id, state_analysis.id, state_analysis.name"
-               ."FROM (analysis_result INNER JOIN data_set ON analysis_result.id_data_set = data_set.id) "
-                . "INNER JOIN state_analysis ON data_set.id_state_analysis = state_analysis.id";
+        $sql = "SELECT data_set.name , analysis_result.id, state_analysis.id, state_analysis.name 
+                fROM (((analysis_result INNER JOIN data_set ON analysis_result.id_data_set = data_set.id) 
+                	INNER JOIN state_analysis ON data_set.id_state_analysis = state_analysis.id) 
+                    inner join company on company.id = data_set.id_company) 
+                    INNER join email on email.id_company = company.id
+                where email.email = '".$userEmail."'";
         $SQLres = mysqli_query($conn, $sql);
         $res = array();
         $nrows = mysqli_num_rows($SQLres);
